@@ -11,7 +11,7 @@ document is outputted to the output_file path given as a flag.
 ## Example Usage:
 
 ```
-go get github.com/subscriptions-project/swg-js/tools/golang/cmd/encrypt && \
+go get github.com/subscriptions-project/encryption/golang/cmd/encrypt && \
 $GOPATH/bin/encrypt \
     --input_html_file=../tmp/sample-encryption.html \
     --output_file=../tmp/sample-encryption-out.html \
@@ -24,7 +24,7 @@ $GOPATH/bin/encrypt \
 Or...
 
 ```
-go run swg-js/tools/golang/cmd/encrypt/script.go \
+go run encryption/golang/cmd/encrypt/script.go \
     --input_html_file=../tmp/sample-encryption.html \
     --output_file=../tmp/sample-encryption-out.html \
     --access_requirement=thenews.com:premium \

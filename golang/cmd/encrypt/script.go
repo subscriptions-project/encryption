@@ -18,7 +18,7 @@ import (
 	"errors"
 	"flag"
 	tinkpb "github.com/google/tink/proto/tink_go_proto"
-	"github.com/subscriptions-project/swg-js/tools/golang/encryption"
+	"github.com/subscriptions-project/encryption/golang/encryption"
 	"io/ioutil"
 	"log"
 	"os"

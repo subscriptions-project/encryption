@@ -19,6 +19,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"github.com/golang/protobuf/proto"
 	"github.com/google/tink/go/aead"
@@ -224,8 +225,8 @@ func encryptAllSections(parsedHTML *html.Node, encryptedSections []*html.Node, k
 }
 
 type swgEncryptionKey struct {
-	accessRequirement []string
-	key               string
+	AccessRequirement []string
+	Key               string
 }
 
 // Encrypts the document's symmetric key using the input Keyset.
@@ -241,18 +242,20 @@ func encryptDocumentKey(docKeyset, accessRequirement string, pubKeys map[string]
 			return nil, err
 		}
 		swgKey := swgEncryptionKey{
-			accessRequirement: []string{accessRequirement},
-			key:               docKeyset,
+			AccessRequirement: []string{accessRequirement},
+			Key:               docKeyset,
 		}
-		log.Println("doc keyset: ", docKeyset)
+		log.Println("swgkey: ", fmt.Sprintf("%v", swgKey))
 		jsonData, err := json.Marshal(swgKey)
 		if err != nil {
 			return nil, err
 		}
+		log.Println("jsondata: ", base64.StdEncoding.EncodeToString(jsonData))
 		enc, err := he.Encrypt(jsonData, nil)
 		if err != nil {
 			return nil, err
 		}
+		log.Println("out: ", base64.StdEncoding.EncodeToString(enc))
 		outMap[domain] = base64.StdEncoding.EncodeToString(enc)
 	}
 	return outMap, nil

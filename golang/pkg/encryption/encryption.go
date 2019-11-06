@@ -19,8 +19,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"fmt"
-	"log"
 	"github.com/golang/protobuf/proto"
 	"github.com/google/tink/go/aead"
 	"github.com/google/tink/go/core/registry"
@@ -230,7 +228,7 @@ type swgEncryptionKey struct {
 }
 
 // Encrypts the document's symmetric key using the input Keyset.
-func encryptDocumentKey(docKeyset, accessRequirement string, pubKeys map[string]tinkpb.Keyset) (map[string]string, error) {
+func encryptDocumentKey(docKey, accessRequirement string, pubKeys map[string]tinkpb.Keyset) (map[string]string, error) {
 	outMap := make(map[string]string)
 	for domain, ks := range pubKeys {
 		handle, err := keyset.NewHandleWithNoSecrets(&ks)
@@ -243,19 +241,16 @@ func encryptDocumentKey(docKeyset, accessRequirement string, pubKeys map[string]
 		}
 		swgKey := swgEncryptionKey{
 			AccessRequirement: []string{accessRequirement},
-			Key:               docKeyset,
+			Key:               docKey,
 		}
-		log.Println("swgkey: ", fmt.Sprintf("%v", swgKey))
 		jsonData, err := json.Marshal(swgKey)
 		if err != nil {
 			return nil, err
 		}
-		log.Println("jsondata: ", base64.StdEncoding.EncodeToString(jsonData))
 		enc, err := he.Encrypt(jsonData, nil)
 		if err != nil {
 			return nil, err
 		}
-		log.Println("out: ", base64.StdEncoding.EncodeToString(enc))
 		outMap[domain] = base64.StdEncoding.EncodeToString(enc)
 	}
 	return outMap, nil

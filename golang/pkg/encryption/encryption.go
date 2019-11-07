@@ -69,7 +69,7 @@ func GenerateEncryptedDocument(htmlStr, accessRequirement string, pubKeys map[st
 	if err = encryptAllSections(parsedHTML, encryptedSections, kh); err != nil {
 		return "", err
 	}
-	encryptedKeys, err := encryptDocumentKey(base64.StdEncoding.EncodeToString(key.KeyValue), accessRequirement, pubKeys)
+	encryptedKeys, err := encryptDocumentKey(key.KeyValue, accessRequirement, pubKeys)
 	if err != nil {
 		return "", err
 	}
@@ -228,7 +228,7 @@ type swgEncryptionKey struct {
 }
 
 // Encrypts the document's symmetric key using the input Keyset.
-func encryptDocumentKey(docKey, accessRequirement string, pubKeys map[string]tinkpb.Keyset) (map[string]string, error) {
+func encryptDocumentKey(docKey []byte, accessRequirement string, pubKeys map[string]tinkpb.Keyset) (map[string]string, error) {
 	outMap := make(map[string]string)
 	for domain, ks := range pubKeys {
 		handle, err := keyset.NewHandleWithNoSecrets(&ks)
@@ -241,7 +241,7 @@ func encryptDocumentKey(docKey, accessRequirement string, pubKeys map[string]tin
 		}
 		swgKey := swgEncryptionKey{
 			AccessRequirement: []string{accessRequirement},
-			Key:               docKey,
+			Key:               base64.StdEncoding.EncodeToString(docKey),
 		}
 		jsonData, err := json.Marshal(swgKey)
 		if err != nil {

@@ -11,11 +11,11 @@ function wrapCryptoOp(op) {
   if (typeof op.then == 'function') {
     return op;
   }
-  return new Promise(function(resolve, reject) {
-    op.oncomplete = function(e) {
+  return new Promise(function (resolve, reject) {
+    op.oncomplete = function (e) {
       resolve(op.result);
     };
-    op.onerror = function(e) {
+    op.onerror = function (e) {
       reject(e);
     };
   });
@@ -45,17 +45,17 @@ function utf8Decode(bytes) {
  * @return {!Uint8Array}
  */
 function base64Decode(str) {
-    const bytes = atob(str);
-    const len = bytes.length;
-    const array = new Uint8Array(len);
-    for (let i = 0; i < len; i++) {
-        const charCode = bytes.charCodeAt(i);
-        if (charCode >= 256) {
-            throw new Error("Decoded bytes not in range [0, 255].");
-        }
-        array[i] = charCode;
+  const bytes = atob(str);
+  const len = bytes.length;
+  const array = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    const charCode = bytes.charCodeAt(i);
+    if (charCode >= 256) {
+      throw new Error("Decoded bytes not in range [0, 255].");
     }
-    return array;
+    array[i] = charCode;
+  }
+  return array;
 }
 
 /**
@@ -69,9 +69,9 @@ export function decryptAesGcm(key, text) {
   const isIE = !!window.msCrypto;
   const subtle = (window.crypto || window.msCrypto).subtle;
   return wrapCryptoOp(subtle.importKey('raw', keybytes.buffer,
-                                       'AES-GCM',
-                                       true, ['decrypt'])).
-    then(function(formattedkey) {
+    'AES-GCM',
+    true, ['decrypt'])).
+    then(function (formattedkey) {
       text = text.replace(/\s+/g, '');
       const contbuff = base64Decode(text).buffer;
       const iv = contbuff.slice(0, 12);
@@ -89,13 +89,13 @@ export function decryptAesGcm(key, text) {
           formattedkey,
           // IE requires "tag" to be removed from the bytes.
           isIE ? bytesToDecrypt.slice(0, bytesToDecrypt.byteLength - 16) : bytesToDecrypt
-      ))
-      .then(function(buffer) {
-        // 5. Decryption gives us raw bytes and we need to turn them into text.
-        const decryptedBytes = new Uint8Array(buffer);
-        return utf8Decode(decryptedBytes);
-      }, function(error) {
-        throw error;
-      });
+        ))
+        .then(function (buffer) {
+          // 5. Decryption gives us raw bytes and we need to turn them into text.
+          const decryptedBytes = new Uint8Array(buffer);
+          return utf8Decode(decryptedBytes);
+        }, function (error) {
+          throw error;
+        });
     });
 }

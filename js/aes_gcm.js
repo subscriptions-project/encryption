@@ -1,9 +1,60 @@
-/**
- * Subtle-based AES-GCM decryption supported on all browser types.
+/* Copyright 2019 The Subscribe with Google Authors. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS-IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
+/**
+ * Subtle-based AES-GCM decryption supported on all browser types.
+ * Decrypts the input text using AES-GCM with the input key.
+ * @param {string} key
+ * @param {string} text
+ * @return {!Promise}
+ */
+export function decryptAesGcm(key, text) {
+  const keybytes = base64Decode(key);
+  const isIE = !!self.msCrypto;
+  const subtle = (self.crypto || self.msCrypto).subtle;
+  return wrapCryptoOp(subtle.importKey('raw', keybytes.buffer,
+    'AES-GCM',
+    true, ['decrypt'])).
+    then((formattedkey) => {
+      text = text.replace(/\s+/g, '');
+      const contbuff = base64Decode(text).buffer;
+      const iv = contbuff.slice(0, 12);
+      const bytesToDecrypt = contbuff.slice(12);
+      return wrapCryptoOp(subtle
+        .decrypt(
+          {
+            name: 'AES-GCM',
+            iv: iv,
+            // IE requires "tag" of length 16.
+            tag: isIE ? bytesToDecrypt.slice(bytesToDecrypt.byteLength - 16) : undefined,
+            // Edge requires "tagLength".
+            tagLength: 128 // block size (16): 1-128
+          },
+          formattedkey,
+          // IE requires "tag" to be removed from the bytes.
+          isIE ? bytesToDecrypt.slice(0, bytesToDecrypt.byteLength - 16) : bytesToDecrypt
+        ))
+        .then((buffer) => {
+          // 5. Decryption gives us raw bytes and we need to turn them into text.
+          return utf8Decode(new Uint8Array(buffer));
+        });
+    });
+}
+
 /** 
- * Possibly wrap an object in a Promise.
+ * Converts IE11 CryptoOperation type to a Promise.
  * @param {Object} op
  * @return {!Promise}
  */
@@ -11,13 +62,11 @@ function wrapCryptoOp(op) {
   if (typeof op.then == 'function') {
     return op;
   }
-  return new Promise(function (resolve, reject) {
-    op.oncomplete = function (e) {
+  return new Promise((resolve, reject) => {
+    op.oncomplete = (e) => {
       resolve(op.result);
     };
-    op.onerror = function (e) {
-      reject(e);
-    };
+    op.onerror = reject;
   });
 }
 
@@ -49,53 +98,7 @@ function base64Decode(str) {
   const len = bytes.length;
   const array = new Uint8Array(len);
   for (let i = 0; i < len; i++) {
-    const charCode = bytes.charCodeAt(i);
-    if (charCode >= 256) {
-      throw new Error("Decoded bytes not in range [0, 255].");
-    }
-    array[i] = charCode;
+    array[i] = bytes.charCodeAt(i);
   }
   return array;
-}
-
-/**
- * Decrypts the input text using AES-GCM with the input key.
- * @param {string} key
- * @param {string} text
- * @return {!Promise}
- */
-export function decryptAesGcm(key, text) {
-  const keybytes = base64Decode(key);
-  const isIE = !!window.msCrypto;
-  const subtle = (window.crypto || window.msCrypto).subtle;
-  return wrapCryptoOp(subtle.importKey('raw', keybytes.buffer,
-    'AES-GCM',
-    true, ['decrypt'])).
-    then(function (formattedkey) {
-      text = text.replace(/\s+/g, '');
-      const contbuff = base64Decode(text).buffer;
-      const iv = contbuff.slice(0, 12);
-      const bytesToDecrypt = contbuff.slice(12);
-      return wrapCryptoOp(subtle
-        .decrypt(
-          {
-            name: 'AES-GCM',
-            iv: iv,
-            // IE requires "tag" of length 16.
-            tag: isIE ? bytesToDecrypt.slice(bytesToDecrypt.byteLength - 16) : undefined,
-            // Edge requires "tagLength".
-            tagLength: 128 // block size (16): 1-128
-          },
-          formattedkey,
-          // IE requires "tag" to be removed from the bytes.
-          isIE ? bytesToDecrypt.slice(0, bytesToDecrypt.byteLength - 16) : bytesToDecrypt
-        ))
-        .then(function (buffer) {
-          // 5. Decryption gives us raw bytes and we need to turn them into text.
-          const decryptedBytes = new Uint8Array(buffer);
-          return utf8Decode(decryptedBytes);
-        }, function (error) {
-          throw error;
-        });
-    });
 }

@@ -8,9 +8,17 @@ to the output document's head inside of a
 ```<script cryptokeys type="application/json">``` element. The encrypted
 document is outputted to the output_file path given as a flag.
 
+## Installation:
+
+```shell
+# From root of repository
+go get -d ./...
+```
+
 ## Example Usage:
 
-```
+```shell
+# From anywhere
 go get github.com/subscriptions-project/encryption/golang/cmd/encrypt && \
 $GOPATH/bin/encrypt \
     --input_html_file=../tmp/sample-encryption.html \
@@ -23,7 +31,8 @@ $GOPATH/bin/encrypt \
     
 Or...
 
-```
+```shell
+# From root of repository
 go run encryption/golang/cmd/encrypt/script.go \
     --input_html_file=../tmp/sample-encryption.html \
     --output_file=../tmp/sample-encryption-out.html \

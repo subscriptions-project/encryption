@@ -24,8 +24,8 @@ go get -d ./...
 ## Example Usage:
 
 ```shell
-# From repo's root directory
-go run encryption/golang/cmd/encrypt/script.go \
+# From repo directory
+go run golang/cmd/encrypt/script.go \
     --input_html_file=../tmp/sample-encryption.html \
     --output_file=../tmp/sample-encryption-out.html \
     --access_requirement=thenews.com:premium \

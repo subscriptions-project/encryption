@@ -49,11 +49,11 @@ func GenerateEncryptedDocument(htmlStr, accessRequirement string, pubKeys map[st
 	if err != nil {
 		return "", err
 	}
-	ks := createAesGcmKeyset(key)
-	ksEnc, err := proto.Marshal(&ks)
+	keyBuf, err := proto.Marshal(key)
 	if err != nil {
 		return "", err
 	}
+	ks := createAesGcmKeyset(keyBuf)
 	kh, err := insecurecleartextkeyset.Read(&keyset.MemReaderWriter{Keyset: &ks})
 	if err != nil {
 		return "", err
@@ -69,7 +69,7 @@ func GenerateEncryptedDocument(htmlStr, accessRequirement string, pubKeys map[st
 	if err = encryptAllSections(parsedHTML, encryptedSections, kh); err != nil {
 		return "", err
 	}
-	encryptedKeys, err := encryptDocumentKey(base64.StdEncoding.EncodeToString(ksEnc), accessRequirement, pubKeys)
+	encryptedKeys, err := encryptDocumentKey(key.KeyValue, accessRequirement, pubKeys)
 	if err != nil {
 		return "", err
 	}
@@ -94,7 +94,7 @@ func RetrieveTinkPublicKey(publicKeyURL string) (tinkpb.Keyset, error) {
 }
 
 // Generates a new AES-GCM key.
-func generateNewAesGcmKey(km registry.KeyManager) ([]byte, error) {
+func generateNewAesGcmKey(km registry.KeyManager) (*gcmpb.AesGcmKey, error) {
 	p, err := proto.Marshal(&gcmpb.AesGcmKeyFormat{KeySize: aesGCMKeySize})
 	if err != nil {
 		return nil, err
@@ -103,7 +103,7 @@ func generateNewAesGcmKey(km registry.KeyManager) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	return proto.Marshal(m)
+	return m.(*gcmpb.AesGcmKey), nil
 }
 
 // Creates an AES-GCM Keyset using the input key.
@@ -130,7 +130,7 @@ func createAesGcmKeyset(key []byte) tinkpb.Keyset {
 			KeyData:          &keyData,
 			Status:           tinkpb.KeyStatusType_ENABLED,
 			KeyId:            1,
-			OutputPrefixType: tinkpb.OutputPrefixType_TINK,
+			OutputPrefixType: tinkpb.OutputPrefixType_RAW,
 		},
 	}
 	return tinkpb.Keyset{
@@ -223,12 +223,12 @@ func encryptAllSections(parsedHTML *html.Node, encryptedSections []*html.Node, k
 }
 
 type swgEncryptionKey struct {
-	accessRequirement []string
-	key               string
+	AccessRequirement []string
+	Key               string
 }
 
 // Encrypts the document's symmetric key using the input Keyset.
-func encryptDocumentKey(docKeyset, accessRequirement string, pubKeys map[string]tinkpb.Keyset) (map[string]string, error) {
+func encryptDocumentKey(docKey []byte, accessRequirement string, pubKeys map[string]tinkpb.Keyset) (map[string]string, error) {
 	outMap := make(map[string]string)
 	for domain, ks := range pubKeys {
 		handle, err := keyset.NewHandleWithNoSecrets(&ks)
@@ -240,8 +240,8 @@ func encryptDocumentKey(docKeyset, accessRequirement string, pubKeys map[string]
 			return nil, err
 		}
 		swgKey := swgEncryptionKey{
-			accessRequirement: []string{accessRequirement},
-			key:               docKeyset,
+			AccessRequirement: []string{accessRequirement},
+			Key:               base64.StdEncoding.EncodeToString(docKey),
 		}
 		jsonData, err := json.Marshal(swgKey)
 		if err != nil {

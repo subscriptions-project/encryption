@@ -18,11 +18,11 @@ import (
 	"errors"
 	"flag"
 	tinkpb "github.com/google/tink/proto/tink_go_proto"
-	"github.com/subscriptions-project/encryption/golang/encryption"
 	"io/ioutil"
 	"log"
 	"os"
 	"strings"
+	"../../pkg/encryption"
 )
 
 type mapFlags map[string]string

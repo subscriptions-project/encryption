@@ -223,7 +223,7 @@ func encryptAllSections(parsedHTML *html.Node, encryptedSections []*html.Node, k
 }
 
 type swgEncryptionKey struct {
-	AccessRequirement []string
+	AccessRequirements []string
 	Key               string
 }
 
@@ -240,8 +240,8 @@ func encryptDocumentKey(docKey []byte, accessRequirement string, pubKeys map[str
 			return nil, err
 		}
 		swgKey := swgEncryptionKey{
-			AccessRequirement: []string{accessRequirement},
-			Key:               base64.StdEncoding.EncodeToString(docKey),
+			AccessRequirements: []string{accessRequirement},
+			Key:                base64.StdEncoding.EncodeToString(docKey),
 		}
 		jsonData, err := json.Marshal(swgKey)
 		if err != nil {

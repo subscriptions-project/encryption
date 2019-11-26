@@ -106,7 +106,7 @@ func TestEncryptDocumentSuccess(t *testing.T) {
 	pubKeys := map[string]tinkpb.Keyset{
 		"google.com": *ks,
 	}
-	encDoc, err := GenerateEncryptedDocument(htmlStr, "norcal.com:premium", pubKeys)
+	encDoc, err := GenerateEncryptedDocument(htmlStr, []string{"norcal.com:premium"}, pubKeys)
 	if err != nil {
 		t.Fatalf("Error occured generating encrypted document.")
 	}
@@ -129,7 +129,7 @@ func TestEncryptDocumentEmptyKeyset(t *testing.T) {
 	pubKeys := map[string]tinkpb.Keyset{
 		"google.com": tinkpb.Keyset{},
 	}
-	_, err = GenerateEncryptedDocument(htmlStr, "norcal.com:premium", pubKeys)
+	_, err = GenerateEncryptedDocument(htmlStr, []string{"norcal.com:premium"}, pubKeys)
 	if err == nil {
 		t.Fatalf("Error did not occur on empty Keyset.")
 	}
@@ -155,7 +155,7 @@ func TestEncryptDocumentNoEncryptSections(t *testing.T) {
 	pubKeys := map[string]tinkpb.Keyset{
 		"google.com": *ks,
 	}
-	encDoc, err := GenerateEncryptedDocument(htmlStr, "norcal.com:premium", pubKeys)
+	encDoc, err := GenerateEncryptedDocument(htmlStr, []string{"norcal.com:premium"}, pubKeys)
 	if err == nil {
 		t.Fatalf("Error did not occur on missing encrypted section. Output: " + encDoc)
 	}
@@ -181,7 +181,7 @@ func TestEncryptDocumentHebrew(t *testing.T) {
 	pubKeys := map[string]tinkpb.Keyset{
 		"google.com": *ks,
 	}
-	encDoc, err := GenerateEncryptedDocument(htmlStr, "norcal.com:premium", pubKeys)
+	encDoc, err := GenerateEncryptedDocument(htmlStr, []string{"norcal.com:premium"}, pubKeys)
 	if err != nil {
 		t.Fatalf("Error occured generating encrypted document: %s", err.Error())
 	}

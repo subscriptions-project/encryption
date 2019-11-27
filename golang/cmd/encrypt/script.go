@@ -15,6 +15,7 @@
 package main
 
 import (
+	"../../pkg/encryption"
 	"errors"
 	"flag"
 	tinkpb "github.com/google/tink/proto/tink_go_proto"
@@ -22,7 +23,6 @@ import (
 	"log"
 	"os"
 	"strings"
-	"../../pkg/encryption"
 )
 
 type mapFlags map[string]string
@@ -45,16 +45,31 @@ func (m *mapFlags) Set(value string) error {
 	return nil
 }
 
+type arrayFlags []string
+
+func (i *arrayFlags) String() string {
+	return strings.Join(*i, ", ")
+}
+
+func (i *arrayFlags) Set(value string) error {
+	*i = append(*i, value)
+	return nil
+}
+
 // Script to encrypt documents for the SwG Encryption Project.
 func main() {
 	// Input flags.
 	inputHTMLFile := flag.String("input_html_file", "", "Input HTML file to encrypt.")
 	outFile := flag.String("output_file", "", "Output path to write encrypted HTML file.")
-	accessRequirement := flag.String("access_requirement", "", "The access requirement we grant upon decryption.")
+	var accessRequirements arrayFlags
+	flag.Var(&accessRequirements, "access_requirement", "The access requirements we grant upon decryption.")
 	mf := make(mapFlags)
 	flag.Var(&mf, "encryption_key_url", `Strings in the form of '<domain-name>,<url>', where url is 
 										 link to the hosted public key that we use to encrypt the 
-										 document key.`)
+										 document key. Note that you must provide one public key for a
+										 "local" domain name. In addition, if a public key url is not 
+										 provided for the "google.com" domain name, we will add the 
+										 dev public key url to the document automatically.`)
 	flag.Parse()
 	if *inputHTMLFile == "" {
 		log.Fatal("Missing flag: input_html_file")
@@ -62,7 +77,7 @@ func main() {
 	if *outFile == "" {
 		log.Fatal("Missing flag: output_file")
 	}
-	if *accessRequirement == "" {
+	if len(accessRequirements) == 0 {
 		log.Fatal("Missing flag: access_requirement")
 	}
 	// Read the input HTML file.
@@ -73,6 +88,9 @@ func main() {
 	// Retrieve all public keys from the input URLs.
 	pubKeys := make(map[string]tinkpb.Keyset)
 	var pubKey tinkpb.Keyset
+	if _, ok := mf["local"]; !ok {
+		log.Fatal("'local' public key URL must be provided.")
+	}
 	if _, ok := mf["google.com"]; !ok {
 		mf["google.com"] = googleDevPublicKeyURL
 	}
@@ -84,7 +102,7 @@ func main() {
 		pubKeys[strings.ToLower(domain)] = pubKey
 	}
 	// Generate the encrypted document from the input HTML document.
-	encryptedDoc, err := encryption.GenerateEncryptedDocument(string(b), *accessRequirement, pubKeys)
+	encryptedDoc, err := encryption.GenerateEncryptedDocument(string(b), []string(accessRequirements), pubKeys)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -40,7 +40,7 @@ const aesGCMKeyURL string = "type.googleapis.com/google.crypto.tink.AesGcmKey"
 const aesGCMKeySize uint32 = 16
 
 // Public function to generate an encrypted HTML document given the original.
-func GenerateEncryptedDocument(htmlStr, accessRequirement string, pubKeys map[string]tinkpb.Keyset) (string, error) {
+func GenerateEncryptedDocument(htmlStr string, accessRequirements []string, pubKeys map[string]tinkpb.Keyset) (string, error) {
 	km, err := registry.GetKeyManager(aesGCMKeyURL)
 	if err != nil {
 		return "", err
@@ -69,7 +69,7 @@ func GenerateEncryptedDocument(htmlStr, accessRequirement string, pubKeys map[st
 	if err = encryptAllSections(parsedHTML, encryptedSections, kh); err != nil {
 		return "", err
 	}
-	encryptedKeys, err := encryptDocumentKey(key.KeyValue, accessRequirement, pubKeys)
+	encryptedKeys, err := encryptDocumentKey(key.KeyValue, accessRequirements, pubKeys)
 	if err != nil {
 		return "", err
 	}
@@ -224,11 +224,11 @@ func encryptAllSections(parsedHTML *html.Node, encryptedSections []*html.Node, k
 
 type swgEncryptionKey struct {
 	AccessRequirements []string
-	Key               string
+	Key                string
 }
 
 // Encrypts the document's symmetric key using the input Keyset.
-func encryptDocumentKey(docKey []byte, accessRequirement string, pubKeys map[string]tinkpb.Keyset) (map[string]string, error) {
+func encryptDocumentKey(docKey []byte, accessRequirements []string, pubKeys map[string]tinkpb.Keyset) (map[string]string, error) {
 	outMap := make(map[string]string)
 	for domain, ks := range pubKeys {
 		handle, err := keyset.NewHandleWithNoSecrets(&ks)
@@ -240,7 +240,7 @@ func encryptDocumentKey(docKey []byte, accessRequirement string, pubKeys map[str
 			return nil, err
 		}
 		swgKey := swgEncryptionKey{
-			AccessRequirements: []string{accessRequirement},
+			AccessRequirements: accessRequirements,
 			Key:                base64.StdEncoding.EncodeToString(docKey),
 		}
 		jsonData, err := json.Marshal(swgKey)

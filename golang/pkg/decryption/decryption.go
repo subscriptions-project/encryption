@@ -15,9 +15,9 @@
 package decryption
 
 import (
-	"bytes"
 	"encoding/base64"
 	"fmt"
+	"github.com/golang/protobuf/proto"
 	"github.com/google/tink/go/aead"
 	"github.com/google/tink/go/core/registry"
 	"github.com/google/tink/go/hybrid"
@@ -25,6 +25,7 @@ import (
 	"github.com/google/tink/go/integration/gcpkms"
 	"github.com/google/tink/go/keyset"
 	"github.com/google/tink/go/tink"
+	tinkpb "github.com/google/tink/proto/tink_go_proto"
 )
 
 // Creates a Tink GCP Client and registers it.
@@ -63,20 +64,18 @@ func CreateGcpAead(keyURI string) (tink.AEAD, error) {
 
 // Decrypts the encryptedKeyset with the input AEAD.
 // Makes and returns a HybridDecrypt from the decrypted keyset.
-func CreateHybridDecryptGcp(encryptedKeyset string, gcpAead *tink.AEAD) (tink.HybridDecrypt, error) {
+func CreateHybridDecryptEncryptedKeyset(encryptedKeyset string, tinkAead *tink.AEAD) (tink.HybridDecrypt, error) {
 	encBytes, err := base64.StdEncoding.DecodeString(encryptedKeyset)
 	if err != nil {
 		return nil, err
 	}
-	decBytes, err := (*gcpAead).Decrypt(encBytes, nil)
+	decBytes, err := (*tinkAead).Decrypt(encBytes, nil)
 	if err != nil {
 		return nil, err
 	}
-	r := keyset.NewBinaryReader(bytes.NewReader(decBytes))
-	kh, err := insecurecleartextkeyset.Read(r)
-	if err != nil {
-		return nil, err
-	}
+	ksproto := &tinkpb.Keyset{}
+	proto.UnmarshalText(string(decBytes), ksproto)
+	kh := insecurecleartextkeyset.KeysetHandle(ksproto)
 	return hybrid.NewHybridDecrypt(kh)
 }
 

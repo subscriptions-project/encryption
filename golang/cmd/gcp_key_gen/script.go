@@ -116,5 +116,5 @@ func main() {
 		log.Fatal(err)
 	}
 	pf.Write(buf.Bytes())
-	log.Println("Public keyset writen to file: ", *outFilePrivate)
+	log.Println("Public keyset writen to file: ", *outFilePublic)
 }

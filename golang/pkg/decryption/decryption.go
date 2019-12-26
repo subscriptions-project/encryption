@@ -62,7 +62,6 @@ func CreateGcpAead(keyURI string) (tink.AEAD, error) {
 	return aead.New(khgcs)
 }
 
-// Decrypts the encryptedKeyset with the input AEAD.
 // Makes and returns a HybridDecrypt from the decrypted keyset.
 func CreateHybridDecryptEncryptedKeyset(encryptedKeyset string, tinkAead *tink.AEAD) (tink.HybridDecrypt, error) {
 	encBytes, err := base64.StdEncoding.DecodeString(encryptedKeyset)

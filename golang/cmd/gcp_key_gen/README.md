@@ -9,7 +9,7 @@ This script was inspired by the Medium post [Google Cloud KMS & Tink](https://me
 
 ```shell
 # Go get the script
-go get github.com/subscriptions-project/encryption/golang/cmd/gcp_key_gen
+go get -u github.com/subscriptions-project/encryption/golang/cmd/gcp_key_gen
 
 ## Example Usage:
 

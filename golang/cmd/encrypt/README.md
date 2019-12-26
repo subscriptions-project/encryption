@@ -12,7 +12,7 @@ document is outputted to the output_file path given as a flag.
 
 ```shell
 # Go get the script
-go get github.com/subscriptions-project/encryption/golang/cmd/encrypt
+go get -u github.com/subscriptions-project/encryption/golang/cmd/encrypt
 ```
 
 ## Example Usage:

@@ -1,0 +1,15 @@
+package(default_visibility = ["//tools/build_defs:internal_pkg"])  # keep
+
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["subtle.go"],
+    importpath = "github.com/google/tink/go/subtle",
+)
+
+go_test(
+    name = "go_default_test",
+    srcs = ["subtle_test.go"],
+    deps = [":go_default_library"],
+)

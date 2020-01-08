@@ -1,0 +1,20 @@
+package(default_visibility = ["//tools/build_defs:internal_pkg"])  # keep
+
+licenses(["notice"])  # keep
+
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "aead.go",
+        "deterministic_aead.go",
+        "hybrid_decrypt.go",
+        "hybrid_encrypt.go",
+        "mac.go",
+        "signer.go",
+        "verifier.go",
+    ],
+    importpath = "github.com/google/tink/go/tink",
+    visibility = ["//visibility:public"],
+)

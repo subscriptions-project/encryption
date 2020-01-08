@@ -11,21 +11,14 @@ document is outputted to the output_file path given as a flag.
 ## Installation:
 
 ```shell
-# Clone repo
-git clone https://github.com/subscriptions-project/encryption
-
-# Open repo directory
-cd encryption/
-
-# Install deps
-go get -d ./...
+# Go get the script
+go get -u github.com/subscriptions-project/encryption/golang/cmd/encrypt
 ```
 
 ## Example Usage:
 
 ```shell
-# From repo directory
-go run golang/cmd/encrypt/script.go \
+go run github.com/subscriptions-project/encryption/golang/cmd/encrypt \
     --input_html_file=../tmp/sample-encryption.html \
     --output_file=../tmp/sample-encryption-out.html \
     --access_requirement=thenews.com:premium \

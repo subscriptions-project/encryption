@@ -13,6 +13,8 @@ go get -u github.com/subscriptions-project/encryption/golang/cmd/aws_key_gen
 
 ## Example Usage:
 
+For aws credentials make sure you have `awscli` installed and you have configured it by running `aws configure` and make sure you have created credentials with default profile NOT NAMED profile.
+
 ```shell
 go run github.com/subscriptions-project/encryption/golang/cmd/aws_key_gen \
     --region=$AWS_KMS_REGION \

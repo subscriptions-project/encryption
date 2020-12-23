@@ -61,10 +61,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// Register GCP client.
+	// Register AWS client.
 	registry.RegisterKMSClient(awsclient)
 
-	// Create an AEAD that uses the GCP key.
+	// Create an AEAD that uses the AWS key.
 	dek := aead.AES128CTRHMACSHA256KeyTemplate()
 	khgcs, err := keyset.NewHandle(aead.KMSEnvelopeAEADKeyTemplate(keyURI, dek))
 	if err != nil {
@@ -86,7 +86,7 @@ func main() {
 		log.Fatal("unexpected error writing keyset: ", err)
 	}
 
-	// Encrypt the Tink key with the GCP AEAD
+	// Encrypt the Tink key with the AWS AEAD
 	ct, err := a.Encrypt([]byte(exported.Keyset.String()), nil)
 	if err != nil {
 		log.Fatal(err)

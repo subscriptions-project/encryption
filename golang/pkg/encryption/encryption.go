@@ -193,7 +193,11 @@ func encryptAllSections(parsedHTML *html.Node, encryptedSections []*html.Node, k
 	}
 	for _, node := range encryptedSections {
 		var content []string
-		for c := node.FirstChild; c != nil; c = c.NextSibling {
+		for {
+			c := node.FirstChild
+			if c == nil {
+				break
+			}
 			content = append(content, renderNode(c))
 			node.RemoveChild(c)
 		}

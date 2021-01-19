@@ -18,7 +18,7 @@ import (
 	"../../pkg/encryption"
 	"errors"
 	"flag"
-	tinkpb "github.com/google/tink/proto/tink_go_proto"
+	tinkpb "github.com/google/tink/go/proto/tink_go_proto"
 	"io/ioutil"
 	"log"
 	"os"

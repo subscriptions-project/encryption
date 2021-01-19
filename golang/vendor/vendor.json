@@ -69,6 +69,18 @@
 			"revisionTime": "2019-12-20T02:41:11Z"
 		},
 		{
+			"checksumSHA1": "KP7Nyk+RWg+fUV7GNvLSWZspseo=",
+			"path": "github.com/google/tink/go/proto/aes_gcm_go_proto",
+			"revision": "71029ffbff34659b75e0a69d2bbf111c99421a00",
+			"revisionTime": "2020-12-22T00:10:19Z"
+		},
+		{
+			"checksumSHA1": "OkcGKh12Rj3zIhDLuP6j2Gouuo4=",
+			"path": "github.com/google/tink/go/proto/tink_go_proto",
+			"revision": "71029ffbff34659b75e0a69d2bbf111c99421a00",
+			"revisionTime": "2020-12-22T00:10:19Z"
+		},
+		{
 			"checksumSHA1": "Nu7aM2n4t9SdXfNUyYBqSA5zKeE=",
 			"path": "github.com/google/tink/go/subtle",
 			"revision": "78b908124efbb34acc4de3ae11b41112cb41adb2",

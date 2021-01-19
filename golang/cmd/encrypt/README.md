@@ -23,6 +23,6 @@ go run github.com/subscriptions-project/encryption/golang/cmd/encrypt \
     --output_file=../tmp/sample-encryption-out.html \
     --access_requirement=thenews.com:premium \
     --encryption_key_url=google.com,https://news.google.com/swg/encryption/keys/{dev|prod}/tink/public_key \
-    --encryption_key_url=example.com,www.example.com/scs/publickey \
+    --encryption_key_url=local,www.example.com/scs/publickey \
     --encryption_key_url=thenews.com,www.thenews.com/scs/publickey
 ```

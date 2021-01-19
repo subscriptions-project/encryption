@@ -195,7 +195,7 @@ func encryptAllSections(parsedHTML *html.Node, encryptedSections []*html.Node, k
 		var content []string
 		for {
 			c := node.FirstChild
-			if (c == nil) {
+			if c == nil {
 				break
 			}
 			content = append(content, renderNode(c))
